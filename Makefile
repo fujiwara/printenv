@@ -16,4 +16,4 @@ image:
         .
 
 release-image: image
-    docker push ghcr.io/fujiwara/printenv:$(GIT_VER)
+	docker push ghcr.io/fujiwara/printenv:$(GIT_VER)
