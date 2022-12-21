@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/fujiwara/ridge v0.6.1
-	github.com/mash/go-accesslog v1.3.0
+	github.com/mashiike/accesslogger v0.1.0
 )
 
 require (

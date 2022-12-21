@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/fujiwara/ridge"
-	accesslog "github.com/mash/go-accesslog"
+	"github.com/mashiike/accesslogger"
 )
 
 type Latency struct {
@@ -34,19 +34,10 @@ func (l *Latency) Sleep() {
 	time.Sleep(s)
 }
 
-type Logger struct {
-	enc *json.Encoder
-}
-
-func (l Logger) Log(record accesslog.LogRecord) {
-	l.enc.Encode(record)
-}
-
 var latency = &Latency{}
 
 func main() {
 	var port int
-	logger := Logger{enc: json.NewEncoder(os.Stdout)}
 
 	flag.IntVar(&port, "port", 8080, "port number")
 	flag.DurationVar(&latency.duration, "latency", 0, "average latency")
@@ -65,7 +56,7 @@ func main() {
 	ridge.Run(
 		fmt.Sprintf(":%d", port),
 		"/",
-		accesslog.NewLoggingHandler(mux, logger),
+		accesslogger.Wrap(mux, accesslogger.JSONLogger(os.Stdout)),
 	)
 }
 
