@@ -22,3 +22,8 @@ $ curl -s -H "accept: application/json" localhost:8080 | jq .
   "PORT": "8080"
 }
 ```
+
+## Latency feature
+
+- `-latency [time.Duration]` adds a latency into the response.
+- `-randomize` randomize latencies.
