@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.1](https://github.com/fujiwara/printenv/compare/v0.2.0...v0.2.1) - 2025-02-01
+- release images by @fujiwara in https://github.com/fujiwara/printenv/pull/6
+
 ## [v0.2.0](https://github.com/fujiwara/printenv/compare/v0.1.2...v0.2.0) - 2025-02-01
 - update workflow (use tagpr!) by @fujiwara in https://github.com/fujiwara/printenv/pull/3
 - add /headers endpoint by @fujiwara in https://github.com/fujiwara/printenv/pull/2
