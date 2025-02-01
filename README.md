@@ -23,6 +23,22 @@ $ curl -s -H "accept: application/json" localhost:8080 | jq .
 }
 ```
 
+## Show request headers
+
+`/headers` shows request headers.
+
+```console
+$ curl -s localhost:8080/headers
+accept: */*
+user-agent: curl/7.68.0
+
+$ curl -s -H "accept: application/json" localhost:8080/headers | jq .
+{
+  "Accept": "*/*"
+  "User-Agent": "curl/7.68.0"
+}
+```
+
 ## Latency feature
 
 - `-latency [time.Duration]` adds a latency into the response.
