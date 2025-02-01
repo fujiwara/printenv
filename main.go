@@ -53,6 +53,7 @@ func main() {
 
 	var mux = http.NewServeMux()
 	mux.HandleFunc("/", handlePrintenv)
+	mux.HandleFunc("/headers", handleHeaders)
 	ridge.Run(
 		fmt.Sprintf(":%d", port),
 		"/",
@@ -79,6 +80,24 @@ func handlePrintenv(w http.ResponseWriter, r *http.Request) {
 		})
 		for _, v := range envs {
 			fmt.Fprintln(w, v)
+		}
+	}
+}
+
+func handleHeaders(w http.ResponseWriter, r *http.Request) {
+	latency.Sleep()
+	headers := make(map[string]string, len(r.Header))
+	for k, v := range r.Header {
+		headers[k] = strings.Join(v, ",")
+	}
+	ac := r.Header.Get("Accept")
+	if strings.Contains(ac, "application/json") {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		json.NewEncoder(w).Encode(headers)
+	} else {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		for k, v := range headers {
+			fmt.Fprintf(w, "%s: %s\n", k, v)
 		}
 	}
 }
