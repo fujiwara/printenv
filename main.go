@@ -87,17 +87,21 @@ func handlePrintenv(w http.ResponseWriter, r *http.Request) {
 func handleHeaders(w http.ResponseWriter, r *http.Request) {
 	latency.Sleep()
 	headers := make(map[string]string, len(r.Header))
+	keys := make([]string, 0, len(r.Header))
 	for k, v := range r.Header {
 		headers[k] = strings.Join(v, ",")
+		keys = append(keys, k)
 	}
+	sort.Strings(keys)
+
 	ac := r.Header.Get("Accept")
 	if strings.Contains(ac, "application/json") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		json.NewEncoder(w).Encode(headers)
 	} else {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		for k, v := range headers {
-			fmt.Fprintf(w, "%s: %s\n", k, v)
+		for _, k := range keys {
+			fmt.Fprintf(w, "%s: %s\n", k, headers[k])
 		}
 	}
 }
