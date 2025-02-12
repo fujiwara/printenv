@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.2](https://github.com/fujiwara/printenv/compare/v0.2.1...v0.2.2) - 2025-02-12
+- sort header by field names. by @fujiwara in https://github.com/fujiwara/printenv/pull/7
+
 ## [v0.2.1](https://github.com/fujiwara/printenv/compare/v0.2.0...v0.2.1) - 2025-02-01
 - release images by @fujiwara in https://github.com/fujiwara/printenv/pull/6
 
