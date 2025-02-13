@@ -3,7 +3,7 @@
 printenv runs a http server that print environment variables.
 
 ```console
-$ docker run -p 8080:8080 ghcr.io/fujiwara/printenv:v0.0.2
+$ docker run -p 8080:8080 ghcr.io/fujiwara/printenv:v0.2.2
 2021/08/13 08:34:01 starting up with local httpd :8080
 ```
 
@@ -29,8 +29,8 @@ $ curl -s -H "accept: application/json" localhost:8080 | jq .
 
 ```console
 $ curl -s localhost:8080/headers
-accept: */*
-user-agent: curl/7.68.0
+Accept: */*
+User-Agent: curl/7.68.0
 
 $ curl -s -H "accept: application/json" localhost:8080/headers | jq .
 {
