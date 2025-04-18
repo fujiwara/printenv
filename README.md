@@ -41,7 +41,19 @@ $ curl -s -H "accept: application/json" localhost:8080/headers | jq .
 
 ## Latency feature
 
+You can add latency to the response.
+
+Set CLI option `-latency` or environment variable `LATENCY` to add latency.
+
+```console
 - `-latency [time.Duration]` adds a latency into the response.
   - `LATENCY` environment variable can be used to set the latency.
 - `-randomize` randomize latencies.
   - `RANDOMIZE` environment variable can be used to set the randomize.
+```
+
+By individual request, you can override latency by query parameter `latency`, for example: `?latency=1s`.
+
+## LICENSE
+
+MIT License

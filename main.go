@@ -34,14 +34,14 @@ func (l *Latency) Sleep() {
 	time.Sleep(s)
 }
 
-var latency = &Latency{}
+var commonLatency = &Latency{}
 
 func main() {
 	var port int
 
 	flag.IntVar(&port, "port", 8080, "port number")
-	flag.DurationVar(&latency.duration, "latency", 0, "average latency")
-	flag.BoolVar(&latency.randomize, "randomize", false, "randomize latency")
+	flag.DurationVar(&commonLatency.duration, "latency", 0, "average latency")
+	flag.BoolVar(&commonLatency.randomize, "randomize", false, "randomize latency")
 	flag.VisitAll(func(f *flag.Flag) {
 		if s := os.Getenv(strings.ToUpper(f.Name)); s != "" {
 			f.Value.Set(s)
@@ -49,7 +49,7 @@ func main() {
 	})
 	flag.Parse()
 	log.Println("port:", port)
-	log.Printf("latency: avg:%s randomize:%v", latency.duration, latency.randomize)
+	log.Printf("latency: avg:%s randomize:%v", commonLatency.duration, commonLatency.randomize)
 
 	var mux = http.NewServeMux()
 	mux.HandleFunc("/", handlePrintenv)
@@ -61,8 +61,28 @@ func main() {
 	)
 }
 
+func newLatencyFromRequest(r *http.Request) (*Latency, error) {
+	s := r.URL.Query().Get("latency")
+	if s == "" {
+		return commonLatency, nil
+	}
+	d, err := time.ParseDuration(s)
+	if err != nil {
+		return nil, fmt.Errorf("invalid latency: %s: %w", s, err)
+	}
+	return &Latency{
+		duration:  d,
+		randomize: commonLatency.randomize,
+	}, nil
+}
+
 func handlePrintenv(w http.ResponseWriter, r *http.Request) {
-	latency.Sleep()
+	if l, err := newLatencyFromRequest(r); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	} else {
+		l.Sleep()
+	}
 	ac := r.Header.Get("Accept")
 	if strings.Contains(ac, "application/json") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -85,7 +105,12 @@ func handlePrintenv(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleHeaders(w http.ResponseWriter, r *http.Request) {
-	latency.Sleep()
+	if l, err := newLatencyFromRequest(r); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	} else {
+		l.Sleep()
+	}
 	headers := make(map[string]string, len(r.Header))
 	keys := make([]string, 0, len(r.Header))
 	for k, v := range r.Header {
