@@ -42,4 +42,6 @@ $ curl -s -H "accept: application/json" localhost:8080/headers | jq .
 ## Latency feature
 
 - `-latency [time.Duration]` adds a latency into the response.
+  - `LATENCY` environment variable can be used to set the latency.
 - `-randomize` randomize latencies.
+  - `RANDOMIZE` environment variable can be used to set the randomize.
