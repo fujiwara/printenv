@@ -3,7 +3,7 @@
 printenv runs a http server that print environment variables.
 
 ```console
-$ docker run -p 8080:8080 ghcr.io/fujiwara/printenv:v0.2.2
+$ docker run -p 8080:8080 ghcr.io/fujiwara/printenv:v0.2.3
 2021/08/13 08:34:01 starting up with local httpd :8080
 ```
 
