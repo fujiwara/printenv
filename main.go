@@ -68,7 +68,7 @@ func newLatencyFromRequest(r *http.Request) (*Latency, error) {
 	}
 	d, err := time.ParseDuration(s)
 	if err != nil {
-		return nil, fmt.Errorf("invalid latency: %s", err)
+		return nil, fmt.Errorf("invalid latency: %s: %w", s, err)
 	}
 	return &Latency{
 		duration:  d,
