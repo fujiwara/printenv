@@ -1,5 +1,7 @@
 # Changelog
 
+## [v0.2.5](https://github.com/fujiwara/printenv/compare/v0.2.4...v0.2.5) - 2025-06-05
+
 ## [v0.2.4](https://github.com/fujiwara/printenv/compare/v0.2.3...v0.2.4) - 2025-06-05
 - Replace log package with slog for JSON-formatted logging by @fujiwara in https://github.com/fujiwara/printenv/pull/12
 
