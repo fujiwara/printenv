@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"os"
@@ -39,6 +39,10 @@ var commonLatency = &Latency{}
 func main() {
 	var port int
 
+	// Set up JSON logger
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	flag.IntVar(&port, "port", 8080, "port number")
 	flag.DurationVar(&commonLatency.duration, "latency", 0, "average latency")
 	flag.BoolVar(&commonLatency.randomize, "randomize", false, "randomize latency")
@@ -48,8 +52,8 @@ func main() {
 		}
 	})
 	flag.Parse()
-	log.Println("port:", port)
-	log.Printf("latency: avg:%s randomize:%v", commonLatency.duration, commonLatency.randomize)
+	slog.Info("server starting", "port", port)
+	slog.Info("latency configuration", "avg", commonLatency.duration, "randomize", commonLatency.randomize)
 
 	var mux = http.NewServeMux()
 	mux.HandleFunc("/", handlePrintenv)
