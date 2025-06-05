@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.2.4](https://github.com/fujiwara/printenv/compare/v0.2.3...v0.2.4) - 2025-06-05
+- Replace log package with slog for JSON-formatted logging by @fujiwara in https://github.com/fujiwara/printenv/pull/12
+
 ## [v0.2.3](https://github.com/fujiwara/printenv/compare/v0.2.2...v0.2.3) - 2025-04-18
 - Letency query args. by @fujiwara in https://github.com/fujiwara/printenv/pull/10
 
