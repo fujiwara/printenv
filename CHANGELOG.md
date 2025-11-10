@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.3.0](https://github.com/fujiwara/printenv/compare/v0.2.5...v0.3.0) - 2025-11-10
+- Add OpenTelemetry HTTP tracing support by @fujiwara in https://github.com/fujiwara/printenv/pull/14
+
 ## [v0.2.5](https://github.com/fujiwara/printenv/compare/v0.2.4...v0.2.5) - 2025-06-05
 
 ## [v0.2.4](https://github.com/fujiwara/printenv/compare/v0.2.3...v0.2.4) - 2025-06-05
