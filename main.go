@@ -17,6 +17,7 @@ import (
 	"github.com/fujiwara/ridge"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -29,7 +30,7 @@ type Latency struct {
 	randomize bool
 }
 
-func (l *Latency) Sleep() {
+func (l *Latency) Sleep(ctx context.Context) {
 	if l.duration == 0 {
 		return
 	}
@@ -39,6 +40,13 @@ func (l *Latency) Sleep() {
 	} else {
 		s = l.duration
 	}
+	_, span := otel.Tracer("printenv").Start(ctx, "latency",
+		trace.WithAttributes(
+			attribute.String("latency.duration", s.String()),
+			attribute.Bool("latency.randomize", l.randomize),
+		),
+	)
+	defer span.End()
 	time.Sleep(s)
 }
 
@@ -243,7 +251,7 @@ func handlePrintenv(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	} else {
-		l.Sleep()
+		l.Sleep(r.Context())
 	}
 	ac := r.Header.Get("Accept")
 	if strings.Contains(ac, "application/json") {
@@ -271,7 +279,7 @@ func handleHeaders(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	} else {
-		l.Sleep()
+		l.Sleep(r.Context())
 	}
 	headers := make(map[string]string, len(r.Header))
 	keys := make([]string, 0, len(r.Header))

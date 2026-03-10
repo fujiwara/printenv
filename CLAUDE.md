@@ -119,10 +119,19 @@ Each HTTP request generates a trace with:
 - `github.com/fujiwara/ridge`: Enables dual-mode deployment (HTTP server + AWS Lambda)
 - `go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp`: HTTP tracing middleware
 - `go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp`: OTLP HTTP trace exporter
-- Requires Go 1.23+
+- Requires Go 1.25+
 
 ## CI/CD
 
-- GitHub Actions runs tests on Go 1.23 and 1.24 on every push/PR
+- GitHub Actions runs tests on Go 1.25 and 1.26 on every push/PR
 - Uses tagpr for automated releases and CHANGELOG management
 - Docker images are published to ghcr.io/fujiwara/printenv
+
+## Go Version Update Checklist
+
+When updating the Go version, the following files need to be modified:
+
+- `go.mod`: `go` directive (minimum supported version)
+- `.github/workflows/test.yml`: `matrix.go` (CI test versions)
+- `.github/workflows/tagpr-release.yml`: `go-version` (release build version)
+- `Dockerfile`: `FROM golang:x.y.z` (Docker build version, use patch version)
