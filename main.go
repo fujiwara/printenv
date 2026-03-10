@@ -15,13 +15,13 @@ import (
 	"time"
 
 	"github.com/fujiwara/ridge"
-	"github.com/mashiike/accesslogger"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Latency struct {
@@ -60,6 +60,47 @@ func parseOTLPEndpoint(rawEndpoint string) (endpoint string, useTLS bool, err er
 		return u.Host, u.Scheme == "https", nil
 	}
 	return rawEndpoint, false, nil
+}
+
+type accessLogResponseWriter struct {
+	http.ResponseWriter
+	statusCode   int
+	bytesWritten int
+}
+
+func (w *accessLogResponseWriter) WriteHeader(code int) {
+	w.statusCode = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *accessLogResponseWriter) Write(b []byte) (int, error) {
+	n, err := w.ResponseWriter.Write(b)
+	w.bytesWritten += n
+	return n, err
+}
+
+func accessLogMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rw := &accessLogResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+		next.ServeHTTP(rw, r)
+		elapsed := time.Since(start)
+
+		attrs := []slog.Attr{
+			slog.String("remote_addr", r.RemoteAddr),
+			slog.String("request", fmt.Sprintf("%s %s %s", r.Method, r.URL.RequestURI(), r.Proto)),
+			slog.Int("status_code", rw.statusCode),
+			slog.Int("body_bytes_sent", rw.bytesWritten),
+			slog.String("user_agent", r.UserAgent()),
+			slog.String("referer", r.Referer()),
+			slog.Int64("response_time_ms", elapsed.Milliseconds()),
+		}
+		sc := trace.SpanContextFromContext(r.Context())
+		if sc.HasTraceID() {
+			attrs = append(attrs, slog.String("trace_id", sc.TraceID().String()))
+		}
+		slog.LogAttrs(r.Context(), slog.LevelInfo, "access", attrs...)
+	})
 }
 
 func setupTracerProvider(ctx context.Context, config *OtelConfig) (func(context.Context) error, error) {
@@ -167,8 +208,8 @@ func main() {
 	mux.HandleFunc("/", handlePrintenv)
 	mux.HandleFunc("/headers", handleHeaders)
 
-	// Wrap handler with otelhttp middleware for tracing
-	handler := accesslogger.Wrap(mux, accesslogger.JSONLogger(os.Stdout))
+	// Wrap handler with access log and otelhttp middleware for tracing
+	handler := accessLogMiddleware(mux)
 	if otelConfig.endpoint != "" {
 		handler = otelhttp.NewHandler(handler, "printenv",
 			otelhttp.WithTracerProvider(otel.GetTracerProvider()),

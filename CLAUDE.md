@@ -68,7 +68,7 @@ curl localhost:8080/headers
 - **Content negotiation**: Responses automatically switch between plain text and JSON based on Accept header
 - **Latency simulation**: Global latency can be set via CLI/env, overridden per-request via query parameter
 - **OpenTelemetry tracing**: HTTP requests are traced using otelhttp middleware when OTLP endpoint is configured
-- **No tests**: Currently no test files exist in the repository
+- **Access logging**: Custom slog-based access log middleware outputs JSON access logs with trace_id when tracing is enabled
 
 ## OpenTelemetry Tracing
 
@@ -100,7 +100,7 @@ docker run -d --name jaeger \
 go run main.go -otel-endpoint localhost:4318
 
 # Or using environment variables
-export OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4318
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 go run main.go
 
 # Access Jaeger UI at http://localhost:16686
@@ -117,7 +117,6 @@ Each HTTP request generates a trace with:
 ## Key Dependencies
 
 - `github.com/fujiwara/ridge`: Enables dual-mode deployment (HTTP server + AWS Lambda)
-- `github.com/mashiike/accesslogger`: Provides HTTP access logging in JSON format
 - `go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp`: HTTP tracing middleware
 - `go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp`: OTLP HTTP trace exporter
 - Requires Go 1.23+
