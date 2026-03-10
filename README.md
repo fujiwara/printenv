@@ -63,7 +63,7 @@ Tracing is automatically enabled when an OTLP endpoint is configured.
 ### Configuration
 
 **CLI Flags:**
-- `-otel-endpoint` - OTLP HTTP endpoint (e.g., `localhost:4318`)
+- `-otel-endpoint` - OTLP HTTP endpoint (e.g., `localhost:4318` or `http://localhost:4318`)
 - `-otel-service-name` - Service name for traces (default: `printenv`)
 
 **Environment Variables:**
@@ -84,13 +84,15 @@ $ docker run -d --name jaeger \
 $ printenv -otel-endpoint localhost:4318
 
 # Or using environment variables
-$ export OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4318
+$ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 $ printenv
 
 # Access Jaeger UI at http://localhost:16686
 ```
 
 Each HTTP request generates a trace with span name "printenv", including HTTP method, path, status code, and latency timing.
+
+When tracing is enabled, access logs include `trace_id` field for correlating logs with traces.
 
 ## LICENSE
 
