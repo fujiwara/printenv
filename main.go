@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -48,6 +49,19 @@ type OtelConfig struct {
 	serviceName string
 }
 
+// parseOTLPEndpoint parses an OTLP endpoint string that may be a URL (http://host:port)
+// or just host:port. Returns the host:port and whether the connection should use TLS.
+func parseOTLPEndpoint(rawEndpoint string) (endpoint string, useTLS bool, err error) {
+	if strings.Contains(rawEndpoint, "://") {
+		u, err := url.Parse(rawEndpoint)
+		if err != nil {
+			return "", false, fmt.Errorf("failed to parse OTLP endpoint URL: %w", err)
+		}
+		return u.Host, u.Scheme == "https", nil
+	}
+	return rawEndpoint, false, nil
+}
+
 func setupTracerProvider(ctx context.Context, config *OtelConfig) (func(context.Context) error, error) {
 	if config.endpoint == "" {
 		slog.Info("OpenTelemetry tracing disabled", "reason", "no endpoint configured")
@@ -56,11 +70,19 @@ func setupTracerProvider(ctx context.Context, config *OtelConfig) (func(context.
 
 	slog.Info("Setting up OpenTelemetry tracing", "endpoint", config.endpoint, "service", config.serviceName)
 
+	endpoint, useTLS, err := parseOTLPEndpoint(config.endpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create OTLP HTTP exporter
-	exporter, err := otlptracehttp.New(ctx,
-		otlptracehttp.WithEndpoint(config.endpoint),
-		otlptracehttp.WithInsecure(), // Use WithTLSClientConfig() for production
-	)
+	opts := []otlptracehttp.Option{
+		otlptracehttp.WithEndpoint(endpoint),
+	}
+	if !useTLS {
+		opts = append(opts, otlptracehttp.WithInsecure())
+	}
+	exporter, err := otlptracehttp.New(ctx, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create OTLP trace exporter: %w", err)
 	}
