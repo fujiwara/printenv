@@ -1,4 +1,4 @@
-FROM golang:1.26 AS build
+FROM golang:1.26.1 AS build
 
 WORKDIR /go/src/printenv
 COPY ./ /go/src/printenv
