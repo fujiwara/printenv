@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.0](https://github.com/fujiwara/printenv/compare/v0.3.0...v0.4.0) - 2026-03-10
+- Support URL format for OTLP endpoint configuration by @fujiwara in https://github.com/fujiwara/printenv/pull/16
+- Add trace_id to access logs by @fujiwara in https://github.com/fujiwara/printenv/pull/18
+- Add tracing span for latency sleep by @fujiwara in https://github.com/fujiwara/printenv/pull/19
+
 ## [v0.3.0](https://github.com/fujiwara/printenv/compare/v0.2.5...v0.3.0) - 2025-11-10
 - Add OpenTelemetry HTTP tracing support by @fujiwara in https://github.com/fujiwara/printenv/pull/14
 
