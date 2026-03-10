@@ -1,6 +1,6 @@
 module github.com/fujiwara/printenv
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/fujiwara/ridge v0.6.1
