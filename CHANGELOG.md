@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.1](https://github.com/fujiwara/printenv/compare/v0.4.0...v0.4.1) - 2026-07-04
+
+- Propagate incoming W3C traceparent header by @fujiwara in https://github.com/fujiwara/printenv/pull/20
+
 ## [v0.4.0](https://github.com/fujiwara/printenv/compare/v0.3.0...v0.4.0) - 2026-03-10
 - Support URL format for OTLP endpoint configuration by @fujiwara in https://github.com/fujiwara/printenv/pull/16
 - Add trace_id to access logs by @fujiwara in https://github.com/fujiwara/printenv/pull/18
