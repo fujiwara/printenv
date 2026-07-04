@@ -19,6 +19,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
@@ -154,6 +155,14 @@ func setupTracerProvider(ctx context.Context, config *OtelConfig) (func(context.
 	)
 
 	otel.SetTracerProvider(tp)
+
+	// Set W3C Trace Context propagator so that an incoming traceparent header
+	// is extracted and the request span is joined to the upstream trace.
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
+
 	slog.Info("OpenTelemetry tracing enabled")
 
 	return tp.Shutdown, nil

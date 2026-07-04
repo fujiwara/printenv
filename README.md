@@ -92,6 +92,8 @@ $ printenv
 
 Each HTTP request generates a trace with span name "printenv", including HTTP method, path, status code, and latency timing.
 
+Incoming requests carrying a W3C `traceparent` header are joined to the upstream trace: the request span is created as a child of the caller's span, preserving the same `trace_id`. Requests without a `traceparent` header start a new trace.
+
 When tracing is enabled, access logs include `trace_id` field for correlating logs with traces.
 
 ## LICENSE
