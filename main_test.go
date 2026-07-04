@@ -9,6 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -128,4 +132,46 @@ func TestAccessLogMiddleware(t *testing.T) {
 			t.Errorf("trace_id = %v, want 0af7651916cd43dd8448eb211c80319c", logEntry["trace_id"])
 		}
 	})
+}
+
+func TestTraceparentPropagation(t *testing.T) {
+	// Configure the W3C Trace Context propagator, as setupTracerProvider does
+	// when tracing is enabled.
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
+
+	const (
+		wantTraceID = "0af7651916cd43dd8448eb211c80319c"
+		parentSpan  = "b7ad6b7169203331"
+	)
+
+	var gotTraceID, gotSpanID string
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// otelhttp starts a new child span, so the trace ID is inherited from
+		// the incoming traceparent while the span ID is freshly generated.
+		sc := trace.SpanContextFromContext(r.Context())
+		gotTraceID = sc.TraceID().String()
+		gotSpanID = sc.SpanID().String()
+		w.WriteHeader(http.StatusOK)
+	})
+
+	// Use a real SDK tracer provider so otelhttp starts a genuine child span
+	// (the default noop tracer would pass the parent span context through unchanged).
+	tp := sdktrace.NewTracerProvider()
+	defer tp.Shutdown(context.Background())
+	handler := otelhttp.NewHandler(inner, "printenv", otelhttp.WithTracerProvider(tp))
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("traceparent", "00-"+wantTraceID+"-"+parentSpan+"-01")
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if gotTraceID != wantTraceID {
+		t.Errorf("trace_id = %q, want %q (incoming traceparent not propagated)", gotTraceID, wantTraceID)
+	}
+	if gotSpanID == "" || gotSpanID == parentSpan {
+		t.Errorf("span_id = %q, want a new child span id (not empty, not the parent %q)", gotSpanID, parentSpan)
+	}
 }
