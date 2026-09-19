@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.2](https://github.com/fujiwara/printenv/compare/v0.4.1...v0.4.2) - 2026-09-19
+
+- Rename CLAUDE.md to AGENTS.md by @fujiwara in https://github.com/fujiwara/printenv/pull/22
+
 ## [v0.4.1](https://github.com/fujiwara/printenv/compare/v0.4.0...v0.4.1) - 2026-07-04
 
 - Propagate incoming W3C traceparent header by @fujiwara in https://github.com/fujiwara/printenv/pull/20
